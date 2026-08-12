@@ -119,12 +119,12 @@ export default definePlugin({
             group: true,
             replacement: [
                 {
-                    match: /j=\(0,\i\.TW\)\(\i,\i\.PremiumTypes\.TIER_2\)/,
-                    replace: "j=!0",
+                    match: /(\i)=\(0,\i\.TW\)\(\i,\i\.PremiumTypes\.TIER_2\)/,
+                    replace: "$1=!0",
                 },
                 {
-                    match: /a=\i\.Ay\.isPremium\(\i,\i\.PremiumTypes\.TIER_2\)/,
-                    replace: "a=!0",
+                    match: /(\i)=\i\.Ay\.isPremium\(\i,\i\.PremiumTypes\.TIER_2\)/,
+                    replace: "$1=!0",
                 },
             ],
         },
