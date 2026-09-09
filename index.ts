@@ -101,7 +101,7 @@ export default definePlugin({
             group: true,
             replacement: [
                 {
-                    match: /function \i\((\i),(\i),\i,\i\)\{(?=\(0,\i\.\i\)\(\2,\1,\i\.\i\.SOUNDBOARD\))/,
+                    match: /function \i\((\i),(\i),\i,\i\)\{(?=\(0,\i\.\i\)\(\2,\1\))/, 
                     replace: "$&return $self.playSound($1);",
                 },
                 {
@@ -111,20 +111,6 @@ export default definePlugin({
                 {
                     match: /\i\.A\.can\(\i\.xBc\.USE_EXTERNAL_SOUNDS,\i\)/,
                     replace: "!0",
-                },
-            ],
-        },
-        {
-            find: "soundboard_floating_upsell",
-            group: true,
-            replacement: [
-                {
-                    match: /(\i)=\(0,\i\.TW\)\(\i,\i\.PremiumTypes\.TIER_2\)/,
-                    replace: "$1=!0",
-                },
-                {
-                    match: /(\i)=\i\.Ay\.isPremium\(\i,\i\.PremiumTypes\.TIER_2\)/,
-                    replace: "$1=!0",
                 },
             ],
         },
