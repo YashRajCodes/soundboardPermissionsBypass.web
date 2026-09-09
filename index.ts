@@ -101,7 +101,7 @@ export default definePlugin({
             group: true,
             replacement: [
                 {
-                    match: /function \i\((\i),(\i),\i,\i\)\{(?=\(0,\i\.\i\)\(\2,\1\))/, 
+                    match: /function \i\((\i),(\i),\i,\i\)\{(?=\(0,\i\.\i\)\(\2,\1\))/,
                     replace: "$&return $self.playSound($1);",
                 },
                 {
