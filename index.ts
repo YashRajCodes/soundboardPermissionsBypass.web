@@ -37,6 +37,7 @@ interface PlaybackSource {
 interface Playback {
     controller: AbortController;
     sources: PlaybackSource[];
+    onStop?: () => void;
 }
 
 const logger = new Logger("SoundboardPermissionsBypass");
@@ -65,6 +66,25 @@ function stopPlayback(active: Playback): void {
             mixed.microphoneGain.gain.value = input.mute ? 0 : 1;
             for (const track of mixed.destination.stream.getAudioTracks()) track.enabled = !input.mute || isStillPlaying;
         }
+    }
+    active.onStop?.();
+}
+
+function startPlaybackSources(buffer: AudioBuffer, volume: number, active: Playback, inputs: MixedInput[]): void {
+    for (const [index, { input, microphoneGain, destination }] of inputs.entries()) {
+        const source = input.context.createBufferSource();
+        const gain = input.context.createGain();
+        source.buffer = buffer;
+        gain.gain.value = volume;
+        source.connect(gain).connect(destination);
+        if (index === 0) gain.connect(input.context.destination);
+        source.onended = () => stopPlayback(active);
+        active.sources.push({ input, source, gain });
+        microphoneGain.gain.value = input.mute ? 0 : 1;
+        for (const track of destination.stream.getAudioTracks()) track.enabled = true;
+        if (input.mute) input.setSpeaking(true);
+        else input.setPTTActive(true);
+        source.start();
     }
 }
 
@@ -173,6 +193,22 @@ export default definePlugin({
         return false;
     },
 
+    getInputs(): AudioInput[] {
+        return [...mixedInputs.values()].map(({ input }) => input);
+    },
+
+    playBuffer(buffer: AudioBuffer, volume: number, controller = new AbortController()): Promise<void> {
+        const inputs = [...mixedInputs.values()];
+        if (inputs.length === 0 || controller.signal.aborted) return Promise.resolve();
+
+        return new Promise(resolve => {
+            const active: Playback = { controller, sources: [], onStop: resolve };
+            playbacks.add(active);
+            controller.signal.addEventListener("abort", () => stopPlayback(active), { once: true });
+            startPlaybackSources(buffer, volume, active, inputs);
+        });
+    },
+
     async playSound(sound: SoundboardSound): Promise<void> {
         const inputs = [...mixedInputs.values()];
         if (inputs.length === 0) {
@@ -199,23 +235,7 @@ export default definePlugin({
             if (!playbacks.has(active)) return;
 
             const volume = Math.max(0, Math.min(1, sound.volume ?? 1));
-            for (const [index, { input, microphoneGain, destination }] of inputs.entries()) {
-                const source = input.context.createBufferSource();
-                const gain = input.context.createGain();
-                source.buffer = buffer;
-                gain.gain.value = volume;
-                source.connect(gain).connect(destination);
-                if (index === 0) gain.connect(input.context.destination);
-                source.onended = () => {
-                    stopPlayback(active);
-                };
-                active.sources.push({ input, source, gain });
-                microphoneGain.gain.value = input.mute ? 0 : 1;
-                for (const track of destination.stream.getAudioTracks()) track.enabled = true;
-                if (input.mute) input.setSpeaking(true);
-                else input.setPTTActive(true);
-                source.start();
-            }
+            startPlaybackSources(buffer, volume, active, inputs);
         } catch (error) {
             const { aborted } = controller.signal;
             stopPlayback(active);
