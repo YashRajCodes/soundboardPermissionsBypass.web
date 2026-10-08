@@ -2,7 +2,9 @@
 
 **SoundboardPermissionsBypass** is a Discord soundboard plugin for Vencord and Equicord that routes soundboard sounds through your microphone. It lets other people in a voice channel hear Discord soundboard audio as microphone input, even when normal soundboard permissions are unavailable.
 
-The plugin supports Discord Web and web-based Discord clients, including Vesktop and Equibop. It does not support the official Discord Desktop app because that client uses a different voice engine.
+> [!WARNING]
+> This plugin only works on web-based Discord clients (Discord Web, Vesktop, Equibop). 
+> It does not support the official Discord Desktop app.
 
 ## Usage
 
