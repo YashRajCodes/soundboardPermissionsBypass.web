@@ -6,7 +6,7 @@
 
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
-import { showToast, Toasts } from "@webpack/common";
+import { showToast } from "@webpack/common";
 
 interface AudioInput {
     context: AudioContext;
@@ -212,7 +212,7 @@ export default definePlugin({
     async playSound(sound: SoundboardSound): Promise<void> {
         const inputs = [...mixedInputs.values()];
         if (inputs.length === 0) {
-            showToast("Join a voice channel before playing a sound.", Toasts.Type.FAILURE);
+            showToast("Join a voice channel before playing a sound.", "failure");
             return;
         }
 
@@ -241,7 +241,7 @@ export default definePlugin({
             stopPlayback(active);
             if (!aborted) {
                 logger.error("Failed to play soundboard sound through the microphone", error);
-                showToast("Couldn't play this sound through your microphone.", Toasts.Type.FAILURE);
+                showToast("Couldn't play this sound through your microphone.", "failure");
             }
         }
     },
